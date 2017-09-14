@@ -3,7 +3,7 @@
 all: ch2 ch3 ch4 ch5 ch6 ch7 ch8
 
 ch2:
-	jbuilder build ch2/kaleidoscope.exe
+	jbuilder build ch2/kaleidoscope.bc
 
 ch3:
 	jbuilder build ch3/kaleidoscope.bc
