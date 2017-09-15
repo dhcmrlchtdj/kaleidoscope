@@ -1,4 +1,4 @@
-.PHONY: all ch2 ch3 ch4 ch5 ch6 ch7 ch8
+.PHONY: all ch2 ch3 ch4 ch5 ch6 ch7 ch8 clean
 
 all: ch2 ch3 ch4 ch5 ch6 ch7 ch8
 
@@ -22,3 +22,6 @@ ch7:
 
 ch8:
 	jbuilder build ch8/kaleidoscope.exe
+
+clean:
+	rm -r _build

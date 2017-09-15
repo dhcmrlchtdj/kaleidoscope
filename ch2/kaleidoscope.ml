@@ -1,10 +1,8 @@
 let main () =
-    (* Install standard binary operators.
-     * 1 is the lowest precedence. *)
-    (* Hashtbl.add Parser.binop_precedence '<' 10; *)
-    (* Hashtbl.add Parser.binop_precedence '+' 20; *)
-    (* Hashtbl.add Parser.binop_precedence '-' 20; *)
-    (* Hashtbl.add Parser.binop_precedence '*' 40;    (* highest. *) *)
+    Hashtbl.add Parser.binop_precedence '<' 10;
+    Hashtbl.add Parser.binop_precedence '+' 20;
+    Hashtbl.add Parser.binop_precedence '-' 20;
+    Hashtbl.add Parser.binop_precedence '*' 40;
 
     print_string "ready> ";
     flush stdout;

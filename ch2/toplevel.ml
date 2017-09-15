@@ -1,4 +1,3 @@
-(* top ::= definition | external | expression | ';' *)
 let rec main_loop token_stream =
     match Stream.peek token_stream with
         | None -> ()
