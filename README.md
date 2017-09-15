@@ -4,6 +4,15 @@ Implementation of [Kaleidoscope](http://llvm.org/docs/tutorial/OCamlLangImpl1.ht
 
 ---
 
+## setup
+
+```
+$ brew install llvm cmake
+$ opam install llvm jbuilder ctypes-foreign
+```
+
+---
+
 ## ch2
 
 - 到 ch2 都只是 lexer 和 parser
