@@ -21,7 +21,7 @@ ch7:
 	jbuilder build ch7/kaleidoscope.bc
 
 ch8:
-	jbuilder build ch8/kaleidoscope.exe
+	jbuilder build ch8/kaleidoscope.bc
 
 clean:
 	rm -r _build

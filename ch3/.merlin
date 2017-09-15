@@ -1,2 +1,4 @@
 B ../_build/default/ch3
 FLG -w -40
+PKG llvm
+PKG llvm.analysis
