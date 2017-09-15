@@ -9,6 +9,9 @@ let main_loop token_stream =
         let _ = consume_whitespace token_stream in
         match Stream.peek token_stream with
             | None -> ()
+            | Some (Token.Kwd ';') ->
+                Stream.junk token_stream;
+                loop token_stream
             | Some token -> (
                     match token with
                         | Token.Def ->
