@@ -1,10 +1,13 @@
 let lex chars =
-    let map_chars f =
+    let rec map_chars f =
         match Stream.peek chars with
             | None -> None
             | Some x -> f x
-    in
-    let rec lex_ident buffer =
+    and create_buf c =
+        let buffer = Buffer.create 1 in
+        Buffer.add_char buffer c;
+        buffer
+    and lex_ident buffer =
         map_chars (function
             | 'A'..'Z' | 'a'..'z' | '0'..'9' as c ->
                 Stream.junk chars;
@@ -40,28 +43,36 @@ let lex chars =
                 Buffer.add_char buffer c;
                 lex_comment buffer
         )
-    and lex_stream () =
+    and lex_whitespace buffer =
         map_chars (function
-            | ' ' | '\n' | '\r' | '\t' ->
+            | '\n' ->
                 Stream.junk chars;
-                lex_stream ()
-            | 'A'..'Z' | 'a'..'z' as c ->
+                let s = Buffer.contents buffer in
+                Some (Token.Whitespace s)
+            | ' ' | '\r' | '\t' as c ->
                 Stream.junk chars;
-                let buffer = Buffer.create 1 in
                 Buffer.add_char buffer c;
-                lex_ident buffer
-            | '0'..'9' as c ->
-                Stream.junk chars;
-                let buffer = Buffer.create 1 in
-                Buffer.add_char buffer c;
-                lex_number buffer
-            | '#' as c ->
-                Stream.junk chars;
-                let buffer = Buffer.create 1 in
-                Buffer.add_char buffer c;
-                lex_comment buffer
-            | c ->
-                Some (Token.Kwd c)
+                lex_whitespace buffer
+            | _ ->
+                let s = Buffer.contents buffer in
+                Some (Token.Whitespace s)
+        )
+    and lex_stream () =
+        map_chars (fun c ->
+            Stream.junk chars;
+            match c with
+                | '\n' ->
+                    Some (Token.Whitespace (Char.escaped c))
+                | ' ' | '\r' | '\t' ->
+                    lex_whitespace (create_buf c)
+                | 'A'..'Z' | 'a'..'z' ->
+                    lex_ident (create_buf c)
+                | '0'..'9' ->
+                    lex_number (create_buf c)
+                | '#' ->
+                    lex_comment (create_buf c)
+                | _ ->
+                    Some (Token.Kwd c)
         )
     in
-    Stream.from (fun i -> lex_stream ())
+    Stream.from (fun _ -> lex_stream ())

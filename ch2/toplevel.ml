@@ -1,23 +1,20 @@
 let rec main_loop token_stream =
+    print_string "ready> ";
+    flush stdout;
     match Stream.peek token_stream with
         | None -> ()
-
-        | Some (Token.Kwd ';') ->
-            Stream.junk token_stream;
-            main_loop token_stream
-
         | Some token -> (
                 match token with
+                    | Token.Whitespace _ ->
+                        Stream.junk token_stream;
                     | Token.Def ->
-                        Stream.junk token_stream;
-                        print_endline "parsed a function definition.";
+                        ignore (Parser.parse_definition token_stream);
+                        print_endline "parsed a function definition."
                     | Token.Extern ->
-                        Stream.junk token_stream;
-                        print_endline "parsed an extern.";
+                        ignore (Parser.parse_extern token_stream);
+                        print_endline "parsed an extern."
                     | _ ->
-                        Stream.junk token_stream;
-                        print_endline "parsed a top-level expr";
+                        ignore (Parser.parse_toplevel token_stream);
+                        print_endline "parsed a top-level expr"
             );
-            print_string "ready> ";
-            flush stdout;
             main_loop token_stream

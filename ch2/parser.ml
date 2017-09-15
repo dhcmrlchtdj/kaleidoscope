@@ -104,17 +104,23 @@ let precedence c =
 (* | [< >] -> *)
 (* raise (Stream.Error "expected function name in prototype") *)
 
-(* (* definition ::= 'def' prototype expression *) *)
-(* let parse_definition = parser *)
+(* definition ::= 'def' prototype expression *)
+let parse_definition token_stream =
+    Stream.junk token_stream
+(* parser *)
 (* | [< 'Token.Def; p=parse_prototype; e=parse_expr >] -> *)
 (* Ast.Function (p, e) *)
 
-(* (* toplevelexpr ::= expression *) *)
-(* let parse_toplevel = parser *)
+(* toplevelexpr ::= expression *)
+let parse_toplevel token_stream =
+    Stream.junk token_stream
+(* parser *)
 (* | [< e=parse_expr >] -> *)
 (* (* Make an anonymous proto. *) *)
 (* Ast.Function (Ast.Prototype ("", [||]), e) *)
 
-(* (*  external ::= 'extern' prototype *) *)
-(* let parse_extern = parser *)
+(*  external ::= 'extern' prototype *)
+let parse_extern token_stream =
+    Stream.junk token_stream
+(* parser *)
 (* | [< 'Token.Extern; e=parse_prototype >] -> e *)
