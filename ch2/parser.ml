@@ -7,120 +7,90 @@ let precedence c =
     with
         | Not_found -> -1
 
-(* primary
- *   ::= identifier
- *   ::= numberexpr
- *   ::= parenexpr *)
-(* let rec parse_primary = parser *)
-(* (* numberexpr ::= number *) *)
-(* | [< 'Token.Number n >] -> Ast.Number n *)
+let _ =
+    Hashtbl.add binop_precedence '<' 10;
+    Hashtbl.add binop_precedence '+' 20;
+    Hashtbl.add binop_precedence '-' 20;
+    Hashtbl.add binop_precedence '*' 40
 
-(* (* parenexpr ::= '(' expression ')' *) *)
-(* | [< 'Token.Kwd '('; e=parse_expr; 'Token.Kwd ')' ?? "expected ')'" >] -> e *)
+let rec parse_whitespace token_stream =
+    match Stream.peek token_stream with
+        | Some (Token.Whitespace _) ->
+            Stream.junk token_stream;
+            parse_whitespace token_stream
+        | _ -> None
 
-(* identifierexpr
- *   ::= identifier
- *   ::= identifier '(' argumentexpr ')' *)
-(* | [< 'Token.Ident id; stream >] -> *)
-(* let rec parse_args accumulator = parser *)
-(* | [< e=parse_expr; stream >] -> *)
-(* begin parser *)
-(* | [< 'Token.Kwd ','; e=parse_args (e :: accumulator) >] -> e *)
-(* | [< >] -> e :: accumulator *)
-(* end stream *)
-(* | [< >] -> accumulator *)
-(* in *)
-(* let rec parse_ident id = parser *)
-(* (* Call. *) *)
-(* | [< 'Token.Kwd '('; *)
-(* args=parse_args []; *)
-(* 'Token.Kwd ')' ?? "expected ')'">] -> *)
-(* Ast.Call (id, Array.of_list (List.rev args)) *)
+and parse_kwd c token_stream =
+    let _ = parse_whitespace token_stream in
+    match Stream.peek token_stream with
+        | Some (Token.Kwd x) when x = c ->
+            Stream.junk token_stream;
+            c
+        | _ -> failwith "unexpected"
 
-(* (* Simple variable ref. *) *)
-(* | [< >] -> Ast.Variable id *)
-(* in *)
-(* parse_ident id stream *)
+and parse_def token_stream =
+    let _ = parse_whitespace token_stream in
+    match Stream.peek token_stream with
+        | Some Token.Def ->
+            Stream.junk token_stream
+        | _ -> failwith "unexpected"
 
-(* | [< >] -> raise (Stream.Error "unknown token when expecting an expression.") *)
+and parse_ext token_stream =
+    let _ = parse_whitespace token_stream in
+    match Stream.peek token_stream with
+        | Some Token.Extern ->
+            Stream.junk token_stream
+        | _ -> failwith "unexpected"
 
-(* binoprhs
- *   ::= ('+' primary)* *)
-(* and parse_bin_rhs expr_prec lhs stream = *)
-(* match Stream.peek stream with *)
-(* (* If this is a binop, find its precedence. *) *)
-(* | Some (Token.Kwd c) when Hashtbl.mem binop_precedence c -> *)
-(* let token_prec = precedence c in *)
+and parse_ident token_stream =
+    let _ = parse_whitespace token_stream in
+    match Stream.peek token_stream with
+        | Some (Token.Ident x) ->
+            Stream.junk token_stream;
+            x
+        | _ -> failwith "unexpected"
 
-(* If this is a binop that binds at least as tightly as the current binop,
- * consume it, otherwise we are done. *)
-(* if token_prec < expr_prec then lhs else begin *)
-(* (* Eat the binop. *) *)
-(* Stream.junk stream; *)
+and parse_idents ids token_stream =
+    let _ = parse_whitespace token_stream in
+    match Stream.peek token_stream with
+        | Some (Token.Ident x) ->
+            Stream.junk token_stream;
+            parse_idents (x :: ids) token_stream
+        | _ ->
+            List.rev ids
 
-(* (* Parse the primary expression after the binary operator. *) *)
-(* let rhs = parse_primary stream in *)
+and parse_express token_stream =
+    let _ = parse_whitespace token_stream in
+    Stream.junk token_stream;
+    (* TODO *)
+    Ast.Variable "c"
 
-(* (* Okay, we know this is a binop. *) *)
-(* let rhs = *)
-(* match Stream.peek stream with *)
-(* | Some (Token.Kwd c2) -> *)
-(* If BinOp binds less tightly with rhs than the operator after
- * rhs, let the pending operator take rhs as its lhs. *)
-(* let next_prec = precedence c2 in *)
-(* if token_prec < next_prec *)
-(* then parse_bin_rhs (token_prec + 1) rhs stream *)
-(* else rhs *)
-(* | _ -> rhs *)
-(* in *)
+(* prototype ::= id '(' id* ')' *)
+(* example: add(x y) *)
+and parse_prototype token_stream =
+    let id = parse_ident token_stream in
+    let _ = parse_kwd '(' token_stream in
+    let args = parse_idents [] token_stream in
+    let _ = parse_kwd ')' token_stream in
+    Ast.Prototype (id, Array.of_list args)
 
-(* (* Merge lhs/rhs. *) *)
-(* let lhs = Ast.Binary (c, lhs, rhs) in *)
-(* parse_bin_rhs expr_prec lhs stream *)
-(* end *)
-(* | _ -> lhs *)
-
-(* expression
- *   ::= primary binoprhs *)
-(* and parse_expr = parser *)
-(* | [< lhs=parse_primary; stream >] -> parse_bin_rhs 0 lhs stream *)
-
-(* prototype
- *   ::= id '(' id* ')' *)
-(* let parse_prototype = *)
-(* let rec parse_args accumulator = parser *)
-(* | [< 'Token.Ident id; e=parse_args (id::accumulator) >] -> e *)
-(* | [< >] -> accumulator *)
-(* in *)
-
-(* parser *)
-(* | [< 'Token.Ident id; *)
-(* 'Token.Kwd '(' ?? "expected '(' in prototype"; *)
-(* args=parse_args []; *)
-(* 'Token.Kwd ')' ?? "expected ')' in prototype" >] -> *)
-(* (* success. *) *)
-(* Ast.Prototype (id, Array.of_list (List.rev args)) *)
-
-(* | [< >] -> *)
-(* raise (Stream.Error "expected function name in prototype") *)
+(* external ::= 'extern' prototype *)
+(* example: extern add(x y) *)
+and parse_extern token_stream =
+    let _ = parse_ext token_stream in
+    let proto = parse_prototype token_stream in
+    proto
 
 (* definition ::= 'def' prototype expression *)
-let parse_definition token_stream =
-    Stream.junk token_stream
-(* parser *)
-(* | [< 'Token.Def; p=parse_prototype; e=parse_expr >] -> *)
-(* Ast.Function (p, e) *)
+(* example: def add(x y) x+y *)
+and parse_definition token_stream =
+    let _ = parse_def token_stream in
+    let proto = parse_prototype token_stream in
+    let expr = parse_express token_stream in
+    Ast.Function (proto, expr)
 
 (* toplevelexpr ::= expression *)
-let parse_toplevel token_stream =
-    Stream.junk token_stream
-(* parser *)
-(* | [< e=parse_expr >] -> *)
-(* (* Make an anonymous proto. *) *)
-(* Ast.Function (Ast.Prototype ("", [||]), e) *)
-
-(*  external ::= 'extern' prototype *)
-let parse_extern token_stream =
-    Stream.junk token_stream
-(* parser *)
-(* | [< 'Token.Extern; e=parse_prototype >] -> e *)
+(* example: x+y *)
+and parse_toplevel token_stream =
+    let expr = parse_express token_stream in
+    Ast.Function (Ast.Prototype ("", [||]), expr)
