@@ -71,8 +71,20 @@ let rec print_expr = function
         print_string " IN ";
         print_expr body;
         print_string ")";
-    | Var (a, b) ->
+    | Var (vars, body) ->
         print_string "(";
         print_string "VAR ";
-        (* TODO *)
+        Array.iteri (fun i (n, v) ->
+            if i > 0 then print_string " ,";
+            print_string "(";
+            print_string n;
+            (match v with
+                | Some vv ->
+                    print_string " = ";
+                    print_expr vv
+                | None -> ());
+            print_string ")";
+        ) vars;
+        print_string " IN ";
+        print_expr body;
         print_string ")";

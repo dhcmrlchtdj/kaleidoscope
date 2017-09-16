@@ -48,13 +48,30 @@ $ opam install llvm ctypes-foreign jbuilder
 
 ## ch5
 
-- 本章的重点其实应该是 LLVM IR，光是看一遍抄一遍没吸收多少
+- 在 LLVM IR 里实现分支跳转
+- Φ (Phi) function
 
 ---
 
 ## ch6
 
-- 总感觉这章的代码处理有问题，按自己理解改了
+- 感觉这章的代码处理有问题，按自己理解改了
 - 定义的时候，加上 `unary / binary`，比如 `unary !`
 - 处理的时候，binary 额外需要在 precedence 里加上优先级
 - 调用的时候，把符号修改成函数，`!x` 变成 `unary! (x)`
+
+---
+
+## ch7
+
+- 在 LLVM IR 里实现赋值
+- stack variable
+
+---
+
+## summary
+
+- 总体感觉，这个教程的帮助不大……
+- parser 的部分，这里的场景比较简单，代码风格也不太好
+- codegen 的部分，感觉对熟悉 LLVM IR 帮助不大
+- 程序语义方面完全没涉及

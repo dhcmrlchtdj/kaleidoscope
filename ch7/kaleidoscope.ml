@@ -10,9 +10,10 @@ let main input =
             | Some t -> t
             | None -> failwith "target not found"
     in
-    let machine = Llvm_target.TargetMachine.create triple target in
+    let machine = Llvm_target.TargetMachine.create ~triple target in
     let the_fpm = Llvm.PassManager.create_function Codegen.the_module in
     Llvm_target.TargetMachine.add_analysis_passes the_fpm machine;
+    Llvm_scalar_opts.add_memory_to_register_promotion the_fpm;
     Llvm_scalar_opts.add_instruction_combination the_fpm;
     Llvm_scalar_opts.add_reassociation the_fpm;
     Llvm_scalar_opts.add_gvn the_fpm;
@@ -24,8 +25,7 @@ let main input =
     Llvm.dump_module Codegen.the_module
 
 
-let () = main (Stream.of_string "def test (x) x = 10; test (1);")
+let () = main (Stream.of_string "def test (x) var y = 10 in x + y; test (1);")
+let () = main (Stream.of_string "def loop(n) for i = 1.0, i < n, 1.0 in i;")
 (* let () = main (Stream.of_string "def binary > 10 (LHS RHS) RHS < LHS; 10.0 < 20.0; 20.0 > 10.0;") *)
 (* let () = main (Stream.of_channel stdin) *)
-
-(* def test (x) x = 10; test (1); *)
