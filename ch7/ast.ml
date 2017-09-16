@@ -6,6 +6,7 @@ type expr =
     | Call of string * expr array
     | If of expr * expr * expr
     | For of string * expr * expr * expr option * expr
+    | Var of (string * expr option) array * expr
 and proto =
     | Prototype of string * string array
     | BinOpPrototype of string * string array * int
@@ -15,24 +16,24 @@ and func =
 let rec print_expr = function
     | Number f ->
         print_string "(";
-        print_string "number: ";
+        print_string "NUMBER: ";
         print_float f;
         print_string ")";
     | Variable s ->
         print_string "(";
-        print_string "variable: ";
+        print_string "VARIABLE: ";
         print_string s;
         print_string ")";
     | Unary (op, e1) ->
         print_string "(";
-        print_string "binary: ";
+        print_string "UNARY: ";
         print_char op;
         print_string " ";
         print_expr e1;
         print_string ")";
     | Binary (op, e1, e2) ->
         print_string "(";
-        print_string "binary: ";
+        print_string "BINARY: ";
         print_char op;
         print_string " ";
         print_expr e1;
@@ -41,7 +42,7 @@ let rec print_expr = function
         print_string ")";
     | Call (fn, args) ->
         print_string "(";
-        print_string "func: ";
+        print_string "FUNC: ";
         print_string fn;
         Array.iter (fun e -> print_string " "; print_expr e) args;
         print_string ")";
@@ -70,4 +71,8 @@ let rec print_expr = function
         print_string " IN ";
         print_expr body;
         print_string ")";
-
+    | Var (a, b) ->
+        print_string "(";
+        print_string "VAR ";
+        (* TODO *)
+        print_string ")";

@@ -25,6 +25,7 @@ let lex chars =
                         | "in" -> Some Token.In
                         | "binary" -> Some Token.Binary
                         | "unary" -> Some Token.Unary
+                        | "var" -> Some Token.Var
                         | id -> Some (Token.Ident id)
                 )
         )

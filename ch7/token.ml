@@ -7,6 +7,9 @@ type token =
     | Ident of string
     | Number of float
 
+    (* var definition *)
+    | Var
+
     | Kwd of char
     | Whitespace of string
     | Comment of string
@@ -38,3 +41,4 @@ let print_token = function
     | In -> print_endline "In"
     | Binary -> print_endline "Binary"
     | Unary -> print_endline "Unary"
+    | Var -> print_endline "Var"

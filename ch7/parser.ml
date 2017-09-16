@@ -8,6 +8,7 @@ let precedence c =
         | Not_found -> -1
 
 let _ =
+    Hashtbl.add binop_precedence '=' 2;
     Hashtbl.add binop_precedence '<' 10;
     Hashtbl.add binop_precedence '+' 20;
     Hashtbl.add binop_precedence '-' 20;
@@ -72,7 +73,25 @@ and parse_args args token_stream =
         | Failure _ ->
             List.rev args
 
-(* primary ::= numberexpr ::= parenexpr ::= identifierexpr ::= ifexpr ::= forexpr *)
+and parse_var_init vars token_stream =
+    let id = parse_ident token_stream in
+    let exp =
+        match peek token_stream with
+            | Some (Token.Kwd '=') ->
+                consume_token (Token.Kwd '=') token_stream;
+                Some (parse_expr token_stream)
+            | _ ->
+                None
+    in
+    let vars2 = (id, exp) :: vars in
+    match peek token_stream with
+        | Some (Token.Kwd ',') ->
+            consume_token (Token.Kwd ',') token_stream;
+            parse_var_init vars2 token_stream
+        | _ ->
+            List.rev vars2
+
+(* primary ::= numberexpr ::= parenexpr ::= identifierexpr ::= ifexpr ::= forexpr ::= varexpr *)
 and parse_primary token_stream =
     match peek token_stream with
         (* numberexpr ::= number *)
@@ -108,7 +127,6 @@ and parse_primary token_stream =
             let else_ = parse_expr token_stream in
             Ast.If (cond, then_, else_)
         (* forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression *)
-        (*           for i           =   1    , i < n   , 1.0      in  i; *)
         | Some Token.For ->
             consume_token Token.For token_stream;
             let id = parse_ident token_stream in
@@ -125,7 +143,14 @@ and parse_primary token_stream =
             ) in
             consume_token (Token.In) token_stream;
             let body = parse_expr token_stream in
-            Ast.For (id, start, stop, step, body);
+            Ast.For (id, start, stop, step, body)
+        (* varexpr ::= 'var' identifier ('=' expression (',' identifier ('=' expression)?)* )? 'in' expression *)
+        | Some Token.Var ->
+            consume_token Token.Var token_stream;
+            let vars = parse_var_init [] token_stream in
+            consume_token (Token.In) token_stream;
+            let body = parse_expr token_stream in
+            Ast.Var (Array.of_list vars, body)
         | _ -> failwith "unexpected"
 
 (* unary ::= primary ::= '!' unary *)

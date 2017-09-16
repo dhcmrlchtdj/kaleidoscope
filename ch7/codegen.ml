@@ -4,14 +4,23 @@ let builder = Llvm.builder context
 let named_values: (string,Llvm.llvalue) Hashtbl.t = Hashtbl.create 10
 let double_type = Llvm.double_type context
 
+let create_entry_block_alloca the_function var_name =
+    let block = Llvm.entry_block the_function in
+    let pos = Llvm.instr_begin block in
+    let builder = Llvm.builder_at context pos in
+    Llvm.build_alloca double_type var_name builder
+
 let rec codegen_expr = function
     | Ast.Number n ->
         Llvm.const_float double_type n
     | Ast.Variable name ->
-        (try
-            Hashtbl.find named_values name
-        with
-            | Not_found -> failwith "unknown variable name")
+        let v =
+            try
+                Hashtbl.find named_values name
+            with
+                | Not_found -> failwith "unknown variable name"
+        in
+        Llvm.build_load v name builder
     | Ast.Unary (op, arg) ->
         let operand = codegen_expr arg in
         let func = "unary" ^ (String.make 1 op) in

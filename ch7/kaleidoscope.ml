@@ -24,9 +24,8 @@ let main input =
     Llvm.dump_module Codegen.the_module
 
 
-let () = main (Stream.of_string "def unary ! (v) if v then 0 else 1;")
-let () = main (Stream.of_string "def binary > 10 (LHS RHS) RHS < LHS; 10.0 < 20.0; 20.0 > 10.0;")
+let () = main (Stream.of_string "def test (x) x = 10; test (1);")
+(* let () = main (Stream.of_string "def binary > 10 (LHS RHS) RHS < LHS; 10.0 < 20.0; 20.0 > 10.0;") *)
 (* let () = main (Stream.of_channel stdin) *)
 
-(* def unary ! (v) if v then 0 else 1; *)
-(* def binary > 10 (LHS RHS) RHS < LHS; *)
+(* def test (x) x = 10; test (1); *)
