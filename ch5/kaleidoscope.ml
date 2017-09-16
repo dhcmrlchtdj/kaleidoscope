@@ -23,12 +23,12 @@ let main input =
     print_newline ();
     Llvm.dump_module Codegen.the_module
 
-(* let () = main (Stream.of_channel stdin) *)
 
-let () = main (Stream.of_string "def fib(x) if x < 3 then 1 else fib(x-1)+fib(x-2); fib (5);")
+(* let () = main (Stream.of_string "def fib(x) if x < 3 then 1 else fib(x-1)+fib(x-2); fib (5);") *)
+let () = main (Stream.of_string "def loop(n) for i = 1.0, i < n, 1.0 in i;")
+(* let () = main (Stream.of_channel stdin) *)
 
 (* def fib(x) if x < 3 then 1 else fib(x-1)+fib(x-2); *)
 (* fib (5); *)
-(* extern foo(); *)
-(* extern bar(); *)
-(* def baz(x) if x then foo() else bar(); *)
+(* def loop(n) for i = 1, i < n, 1.0 in i; *)
+(* loop (5); *)

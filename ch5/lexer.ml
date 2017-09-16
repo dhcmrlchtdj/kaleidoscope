@@ -18,6 +18,11 @@ let lex chars =
                     match s with
                         | "def" -> Some Token.Def
                         | "extern" -> Some Token.Extern
+                        | "if" -> Some Token.If
+                        | "then" -> Some Token.Then
+                        | "else" -> Some Token.Else
+                        | "for" -> Some Token.For
+                        | "in" -> Some Token.In
                         | id -> Some (Token.Ident id)
                 )
         )

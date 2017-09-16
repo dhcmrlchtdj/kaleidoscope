@@ -1,18 +1,62 @@
-(* expr - Base type for all expression nodes. *)
 type expr =
-    (* variant for numeric literals like "1.0". *)
     | Number of float
-    (* variant for referencing a variable, like "a". *)
     | Variable of string
-    (* variant for a binary operator. *)
     | Binary of char * expr * expr
-    (* variant for function calls. *)
     | Call of string * expr array
+    | If of expr * expr * expr
+    | For of string * expr * expr * expr option * expr
+and proto = Prototype of string * string array
+and func = Function of proto * expr
 
-(* proto - This type represents the "prototype" for a function, which captures
- * its name, and its argument names (thus implicitly the number of arguments the
- * function takes). *)
-type proto = Prototype of string * string array
+let rec print_expr = function
+    | Number f ->
+        print_string "(";
+        print_string "number: ";
+        print_float f;
+        print_string ")";
+    | Variable s ->
+        print_string "(";
+        print_string "variable: ";
+        print_string s;
+        print_string ")";
+    | Binary (op, e1, e2) ->
+        print_string "(";
+        print_string "binary: ";
+        print_char op;
+        print_string " ";
+        print_expr e1;
+        print_string " ";
+        print_expr e2;
+        print_string ")";
+    | Call (fn, args) ->
+        print_string "(";
+        print_string "func: ";
+        print_string fn;
+        Array.iter (fun e -> print_string " "; print_expr e) args;
+        print_string ")";
+    | If (c, t, e) ->
+        print_string "(";
+        print_string "IF ";
+        print_expr c;
+        print_string " THEN ";
+        print_expr t;
+        print_string " ELSE ";
+        print_expr e;
+        print_string ")";
+    | For (id, start, stop, step, body) ->
+        print_string "(";
+        print_string "FOR ";
+        print_string id;
+        print_string " = ";
+        print_expr start;
+        print_string ", ";
+        print_expr stop;
+        (match step with
+            | Some s ->
+                print_string ", ";
+                print_expr s
+            | None -> ());
+        print_string " IN ";
+        print_expr body;
+        print_string ")";
 
-(* func - This type represents a function definition itself. *)
-type func = Function of proto * expr

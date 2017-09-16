@@ -45,3 +45,9 @@ $ opam install llvm ctypes-foreign jbuilder
     - `Llvm_executionengine.run_function` 也不存在，只有 `Llvm_executionengine.add_module`
     - 改写了一些，能执行一些优化，不过看起来好像效果比较差的样子
     - 没有使用 execution engine，所以都称不上 jit 吧。新版不知道怎么针对函数做 jit。😂
+
+---
+
+## ch5
+
+- 本章的重点其实应该是 LLVM IR，不过光这样看一遍抄一遍没吸收多少
