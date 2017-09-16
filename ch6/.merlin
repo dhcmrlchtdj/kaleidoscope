@@ -1,2 +1,7 @@
 B ../_build/default/ch6
 FLG -w -40
+PKG llvm
+PKG llvm.all_backends
+PKG llvm.analysis
+PKG llvm.scalar_opts
+PKG llvm.target

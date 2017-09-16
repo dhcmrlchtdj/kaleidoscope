@@ -51,3 +51,9 @@ $ opam install llvm ctypes-foreign jbuilder
 ## ch5
 
 - 本章的重点其实应该是 LLVM IR，不过光这样看一遍抄一遍没吸收多少
+
+---
+
+## ch6
+
+
