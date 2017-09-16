@@ -1,3 +1,9 @@
 (jbuild_version 1)
 
-(executable ((name kaleidoscope)))
+(executable (
+  (name kaleidoscope)
+  (libraries (
+    llvm
+    llvm.analysis
+  ))
+))
