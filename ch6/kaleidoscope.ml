@@ -10,7 +10,7 @@ let main input =
             | Some t -> t
             | None -> failwith "target not found"
     in
-    let machine = Llvm_target.TargetMachine.create triple target in
+    let machine = Llvm_target.TargetMachine.create ~triple target in
     let the_fpm = Llvm.PassManager.create_function Codegen.the_module in
     Llvm_target.TargetMachine.add_analysis_passes the_fpm machine;
     Llvm_scalar_opts.add_instruction_combination the_fpm;

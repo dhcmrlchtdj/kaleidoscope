@@ -37,7 +37,7 @@ let main_loop the_fpm token_stream =
                             let the_function = Codegen.codegen_func e in
                             optimize the_function
                 with
-                    | e ->
+                    | _ ->
                         Stream.junk token_stream;
                         Token.print_token token);
                 print_string "ready> ";
