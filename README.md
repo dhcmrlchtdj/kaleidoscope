@@ -41,16 +41,14 @@ $ opam install llvm ctypes-foreign jbuilder
 - [LLVM passes](http://llvm.org/docs/Passes.html)
 - [how to write a pass](http://llvm.org/docs/WritingAnLLVMPass.html)
 - 这个教程本身非常旧了，代码和新的库对应不上……
-    - `Llvm_target.DataLayout.add_to_pass_manager` 已经被删掉了，不知道 `Llvm_executionengine.data_layout` 得到的 layout 要怎么用
-    - `Llvm_executionengine.run_function` 也不存在，只有 `Llvm_executionengine.add_module`
-    - 改写了一些，能执行一些优化，不过看起来好像效果比较差的样子
-    - 没有使用 execution engine，所以都称不上 jit 吧。新版不知道怎么针对函数做 jit。😂
+    - 修复了部分代码，能进行 optimization
+    - JIT 没跑起来。`Llvm_executionengine.run_function` 这个 API 都已经删除了。没 LLVM 基础，API 文档看得很懵。
 
 ---
 
 ## ch5
 
-- 本章的重点其实应该是 LLVM IR，不过光这样看一遍抄一遍没吸收多少
+- 本章的重点其实应该是 LLVM IR，光是看一遍抄一遍没吸收多少
 
 ---
 
