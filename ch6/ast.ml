@@ -25,7 +25,7 @@ let rec print_expr = function
         print_string ")";
     | Unary (op, e1) ->
         print_string "(";
-        print_string "binary: ";
+        print_string "unary: ";
         print_char op;
         print_string " ";
         print_expr e1;

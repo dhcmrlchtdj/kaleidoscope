@@ -108,7 +108,6 @@ and parse_primary token_stream =
             let else_ = parse_expr token_stream in
             Ast.If (cond, then_, else_)
         (* forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression *)
-        (*           for i           =   1    , i < n   , 1.0      in  i; *)
         | Some Token.For ->
             consume_token Token.For token_stream;
             let id = parse_ident token_stream in
@@ -125,7 +124,7 @@ and parse_primary token_stream =
             ) in
             consume_token (Token.In) token_stream;
             let body = parse_expr token_stream in
-            Ast.For (id, start, stop, step, body);
+            Ast.For (id, start, stop, step, body)
         | _ -> failwith "unexpected"
 
 (* unary ::= primary ::= '!' unary *)
