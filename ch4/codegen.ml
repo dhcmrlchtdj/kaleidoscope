@@ -1,5 +1,5 @@
 let context = Llvm.global_context ()
-let the_module = Llvm.create_module context "my_cool_jit"
+let the_module = Llvm.create_module context "Kaleidoscope"
 let builder = Llvm.builder context
 let named_values: (string,Llvm.llvalue) Hashtbl.t = Hashtbl.create 10
 let double_type = Llvm.double_type context

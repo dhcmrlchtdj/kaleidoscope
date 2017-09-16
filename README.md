@@ -8,7 +8,7 @@ Implementation of [Kaleidoscope](http://llvm.org/docs/tutorial/OCamlLangImpl1.ht
 
 ```
 $ brew install llvm cmake
-$ opam install llvm jbuilder ctypes-foreign
+$ opam install llvm ctypes-foreign jbuilder
 ```
 
 ---
@@ -30,4 +30,18 @@ $ opam install llvm jbuilder ctypes-foreign
 
 - [SSA](https://en.wikipedia.org/wiki/Static_single_assignment_form)
 - [OCaml LLVM bindings](https://llvm.moe/)
-- 好像 LLVM 默认开启了 constant folding optimisations，`4+5` 这种直接优化了
+    - 更新不够及时的文档
+    - 直接去翻 ~/.opam/system/lib/llvm 下面的 mli 文件更准确
+- 新版的 LLVM 默认开启了 constant folding optimisation
+
+---
+
+## ch4
+
+- [LLVM passes](http://llvm.org/docs/Passes.html)
+- [how to write a pass](http://llvm.org/docs/WritingAnLLVMPass.html)
+- 这个教程本身非常旧了，代码和新的库对应不上……
+    - `Llvm_target.DataLayout.add_to_pass_manager` 已经被删掉了，不知道 `Llvm_executionengine.data_layout` 得到的 layout 要怎么用
+    - `Llvm_executionengine.run_function` 也不存在，只有 `Llvm_executionengine.add_module`
+    - 改写了一些，能执行一些优化，不过看起来好像效果比较差的样子
+    - 没有使用 execution engine，所以都称不上 jit 吧。新版不知道怎么针对函数做 jit。😂
