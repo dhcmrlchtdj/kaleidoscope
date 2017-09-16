@@ -1,16 +1,27 @@
 type token =
+    (* commands *)
     | Def
     | Extern
+
+    (* primary *)
     | Ident of string
+    | Number of float
+
+    | Kwd of char
     | Whitespace of string
     | Comment of string
-    | Number of float
-    | Kwd of char
+
+    (* control *)
     | If
     | Then
     | Else
     | For
     | In
+
+    (* operators *)
+    | Binary
+    | Unary
+
 
 let print_token = function
     | Def -> print_endline "Def"
@@ -25,3 +36,5 @@ let print_token = function
     | Else -> print_endline "Else"
     | For -> print_endline "For"
     | In -> print_endline "In"
+    | Binary -> print_endline "Binary"
+    | Unary -> print_endline "Unary"

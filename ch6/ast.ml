@@ -1,12 +1,16 @@
 type expr =
     | Number of float
     | Variable of string
+    | Unary of char * expr
     | Binary of char * expr * expr
     | Call of string * expr array
     | If of expr * expr * expr
     | For of string * expr * expr * expr option * expr
-and proto = Prototype of string * string array
-and func = Function of proto * expr
+and proto =
+    | Prototype of string * string array
+    | BinOpPrototype of string * string array * int
+and func =
+    | Function of proto * expr
 
 let rec print_expr = function
     | Number f ->
@@ -18,6 +22,13 @@ let rec print_expr = function
         print_string "(";
         print_string "variable: ";
         print_string s;
+        print_string ")";
+    | Unary (op, e1) ->
+        print_string "(";
+        print_string "binary: ";
+        print_char op;
+        print_string " ";
+        print_expr e1;
         print_string ")";
     | Binary (op, e1, e2) ->
         print_string "(";

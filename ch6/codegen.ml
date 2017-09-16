@@ -12,17 +12,35 @@ let rec codegen_expr = function
             Hashtbl.find named_values name
         with
             | Not_found -> failwith "unknown variable name")
+    | Ast.Unary (op, arg) ->
+        let operand = codegen_expr arg in
+        let func = "unary" ^ (String.make 1 op) in
+        let callee =
+            match Llvm.lookup_function func the_module with
+                | Some f -> f
+                | None -> failwith "invalid unary operator"
+        in
+        Llvm.build_call callee [|operand|] "unop" builder
     | Ast.Binary (op, lhs, rhs) ->
         let lhs_val = codegen_expr lhs in
         let rhs_val = codegen_expr rhs in
-        (match op with
-            | '+' -> Llvm.build_fadd lhs_val rhs_val "addtmp" builder
-            | '-' -> Llvm.build_fsub lhs_val rhs_val "subtmp" builder
-            | '*' -> Llvm.build_fmul lhs_val rhs_val "multmp" builder
-            | '<' ->
-                let i = Llvm.build_fcmp Llvm.Fcmp.Ult lhs_val rhs_val "cmptmp" builder in
-                Llvm.build_uitofp i double_type "booltmp" builder
-            | _ -> failwith "invalid binary operator")
+        (
+            match op with
+                | '+' -> Llvm.build_fadd lhs_val rhs_val "addtmp" builder
+                | '-' -> Llvm.build_fsub lhs_val rhs_val "subtmp" builder
+                | '*' -> Llvm.build_fmul lhs_val rhs_val "multmp" builder
+                | '<' ->
+                    let i = Llvm.build_fcmp Llvm.Fcmp.Ult lhs_val rhs_val "cmptmp" builder in
+                    Llvm.build_uitofp i double_type "booltmp" builder
+                | _ ->
+                    let func = "binary" ^ (String.make 1 op) in
+                    let callee =
+                        match Llvm.lookup_function func the_module with
+                            | Some f -> f
+                            | None -> failwith "invalid binary operator"
+                    in
+                    Llvm.build_call callee [|lhs_val; rhs_val|] "binop" builder
+        )
     | Ast.Call (func, args) ->
         let callee =
             match Llvm.lookup_function func the_module with
@@ -100,7 +118,7 @@ let rec codegen_expr = function
             | None -> ());
         Llvm.const_null double_type
 
-let codegen_proto = function
+let rec codegen_proto = function
     | Ast.Prototype (name, args) ->
         let doubles = Array.make (Array.length args) double_type in
         let ft = Llvm.function_type double_type doubles in
@@ -122,11 +140,16 @@ let codegen_proto = function
         in
         Array.iteri fiter (Llvm.params f);
         f
+    | Ast.BinOpPrototype (name, args, prec) ->
+        let op = name.[String.length name - 1] in
+        Hashtbl.add Parser.binop_precedence op prec;
+        codegen_proto (Ast.Prototype (name, args))
 
 let codegen_func = function
     | Ast.Function (proto, body) ->
         Hashtbl.clear named_values;
         let the_function = codegen_proto proto in
+
         let bb = Llvm.append_block context "entry" the_function in
         Llvm.position_at_end bb builder;
         try

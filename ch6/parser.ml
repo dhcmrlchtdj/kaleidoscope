@@ -30,6 +30,20 @@ and consume_token t token_stream =
             Stream.junk token_stream
         | _ -> failwith "unexpected"
 
+and parse_kwd token_stream =
+    match peek token_stream with
+        | Some (Token.Kwd c) ->
+            Stream.junk token_stream;
+            c
+        | _ -> failwith "unexpected"
+
+and parse_number token_stream =
+    match peek token_stream with
+        | Some (Token.Number f) ->
+            Stream.junk token_stream;
+            f
+        | _ -> failwith "unexpected"
+
 and parse_ident token_stream =
     match peek token_stream with
         | Some (Token.Ident x) ->
@@ -58,7 +72,7 @@ and parse_args args token_stream =
         | Failure _ ->
             List.rev args
 
-(* primary ::= numberexpr ::= parenexpr ::= identifierexpr *)
+(* primary ::= numberexpr ::= parenexpr ::= identifierexpr ::= ifexpr ::= forexpr *)
 and parse_primary token_stream =
     match peek token_stream with
         (* numberexpr ::= number *)
@@ -94,7 +108,7 @@ and parse_primary token_stream =
             let else_ = parse_expr token_stream in
             Ast.If (cond, then_, else_)
         (* forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression *)
-            (*           for i           =   1    , i < n   , 1.0      in  i; *)
+        (*           for i           =   1    , i < n   , 1.0      in  i; *)
         | Some Token.For ->
             consume_token Token.For token_stream;
             let id = parse_ident token_stream in
@@ -114,6 +128,15 @@ and parse_primary token_stream =
             Ast.For (id, start, stop, step, body);
         | _ -> failwith "unexpected"
 
+(* unary ::= primary ::= '!' unary *)
+and parse_unary token_stream =
+    match peek token_stream with
+        | Some (Token.Kwd op) when (op != '(' && op != '=') ->
+            consume_token (Token.Kwd op) token_stream;
+            let operand = parse_expr token_stream in
+            Ast.Unary (op, operand)
+        | _ -> parse_primary token_stream
+
 (* binoprhs ::= ('+' primary)* *)
 and parse_bin_rhs expr_prec lhs token_stream =
     match peek token_stream with
@@ -123,7 +146,7 @@ and parse_bin_rhs expr_prec lhs token_stream =
             then lhs
             else (
                 Stream.junk token_stream;
-                let rhs = parse_primary token_stream in
+                let rhs = parse_unary token_stream in
                 let rhs2 = (
                     match peek token_stream with
                         | Some (Token.Kwd c2) ->
@@ -140,17 +163,45 @@ and parse_bin_rhs expr_prec lhs token_stream =
 
 (* expression ::= primary binoprhs *)
 and parse_expr token_stream =
-    let lhs = parse_primary token_stream in
+    let lhs = parse_unary token_stream in
     parse_bin_rhs 0 lhs token_stream
 
-(* prototype ::= id '(' id* ')' *)
+(* prototype
+ * ::= binary LETTER number? (id, id)
+ * ::= unary LETTER (id)
+ * ::= id '(' id* ')'
+ * *)
 (* example: add(x y) *)
-and parse_prototype token_stream =
-    let id = parse_ident token_stream in
-    consume_token (Token.Kwd '(') token_stream;
-    let params = parse_idents [] token_stream in
-    consume_token (Token.Kwd ')') token_stream;
-    Ast.Prototype (id, Array.of_list params)
+and parse_prototype token_stream = (
+    match peek token_stream with
+        | Some Token.Binary ->
+            consume_token Token.Binary token_stream;
+            let c = parse_kwd token_stream in
+            let name = "binary" ^ (Char.escaped c) in
+            let f = parse_number token_stream in
+            let prec = int_of_float f in
+            consume_token (Token.Kwd '(') token_stream;
+            let left = parse_ident token_stream in
+            let right = parse_ident token_stream in
+            consume_token (Token.Kwd ')') token_stream;
+            Ast.BinOpPrototype (name, [|left; right|], prec)
+        | Some Token.Unary ->
+            consume_token Token.Unary token_stream;
+            let c = parse_kwd token_stream in
+            let name = "unary" ^ (Char.escaped c) in
+            consume_token (Token.Kwd '(') token_stream;
+            let arg = parse_ident token_stream in
+            consume_token (Token.Kwd ')') token_stream;
+            Ast.Prototype (name, [|arg|])
+        | Some Token.Ident id ->
+            consume_token (Token.Ident id) token_stream;
+            consume_token (Token.Kwd '(') token_stream;
+            let params = parse_idents [] token_stream in
+            consume_token (Token.Kwd ')') token_stream;
+            Ast.Prototype (id, Array.of_list params)
+        | _ ->
+            failwith "unexpected"
+)
 
 (* external ::= 'extern' prototype *)
 (* example: extern add(x y) *)

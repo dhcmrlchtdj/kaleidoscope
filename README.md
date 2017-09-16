@@ -54,4 +54,7 @@ $ opam install llvm ctypes-foreign jbuilder
 
 ## ch6
 
-
+- 总感觉这章的代码处理有问题，按自己理解改了
+- 定义的时候，加上 `unary / binary`，比如 `unary !`
+- 处理的时候，binary 额外需要在 precedence 里加上优先级
+- 调用的时候，把符号修改成函数，`!x` 变成 `unary! (x)`

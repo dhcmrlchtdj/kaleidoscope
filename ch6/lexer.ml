@@ -23,6 +23,8 @@ let lex chars =
                         | "else" -> Some Token.Else
                         | "for" -> Some Token.For
                         | "in" -> Some Token.In
+                        | "binary" -> Some Token.Binary
+                        | "unary" -> Some Token.Unary
                         | id -> Some (Token.Ident id)
                 )
         )

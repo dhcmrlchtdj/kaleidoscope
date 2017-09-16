@@ -24,11 +24,9 @@ let main input =
     Llvm.dump_module Codegen.the_module
 
 
-(* let () = main (Stream.of_string "def fib(x) if x < 3 then 1 else fib(x-1)+fib(x-2); fib (5);") *)
-let () = main (Stream.of_string "def loop(n) for i = 1.0, i < n, 1.0 in i;")
+let () = main (Stream.of_string "def unary ! (v) if v then 0 else 1;")
+let () = main (Stream.of_string "def binary > 10 (LHS RHS) RHS < LHS; 10.0 < 20.0; 20.0 > 10.0;")
 (* let () = main (Stream.of_channel stdin) *)
 
-(* def fib(x) if x < 3 then 1 else fib(x-1)+fib(x-2); *)
-(* fib (5); *)
-(* def loop(n) for i = 1, i < n, 1.0 in i; *)
-(* loop (5); *)
+(* def unary ! (v) if v then 0 else 1; *)
+(* def binary > 10 (LHS RHS) RHS < LHS; *)
