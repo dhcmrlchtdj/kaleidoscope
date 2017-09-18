@@ -1,5 +1,5 @@
 B ../_build/default/ch6
-FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs
+FLG -w @a-4 -keep-locs -safe-string -short-paths -strict-formats -strict-sequence
 PKG llvm
 PKG llvm.all_backends
 PKG llvm.analysis

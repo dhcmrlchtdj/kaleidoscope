@@ -2,6 +2,14 @@
 
 (executable (
   (name kaleidoscope)
+  (flags (
+    "-w" "@a-4"
+    "-keep-locs"
+    "-safe-string"
+    "-short-paths"
+    "-strict-formats"
+    "-strict-sequence"
+  ))
   (libraries (
     llvm
     llvm.analysis

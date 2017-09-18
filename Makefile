@@ -1,11 +1,11 @@
-chs := ch2 ch3 ch4 ch5 ch6 ch7
+chs := $(wildcard ch*)
 
 all: $(chs)
 
 $(chs):
-	-jbuilder build --dev $@/kaleidoscope.bc
+	-jbuilder build $@/kaleidoscope.{bc,exe}
 
 clean:
-	rm -r _build
+	-jbuilder clean
 
 .PHONY: all $(chs) clean

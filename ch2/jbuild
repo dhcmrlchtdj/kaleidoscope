@@ -1,3 +1,13 @@
 (jbuild_version 1)
 
-(executable ((name kaleidoscope)))
+(executable (
+  (name kaleidoscope)
+  (flags (
+    "-w" "@a-4"
+    "-keep-locs"
+    "-safe-string"
+    "-short-paths"
+    "-strict-formats"
+    "-strict-sequence"
+  ))
+))
